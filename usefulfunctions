@@ -1,5 +1,5 @@
 
-int linearInterpolation(float value, float lowX, float highX, float lowY, float highY)
+float linearInterpolation(float value, float lowX, float highX, float lowY, float highY)
 {
  return lowY + ((highY-lowY)/(highX-lowX)) * (value - lowX);
 }
