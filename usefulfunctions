@@ -3,3 +3,62 @@ float linearInterpolation(float value, float lowX, float highX, float lowY, floa
 {
  return lowY + ((highY-lowY)/(highX-lowX)) * (value - lowX);
 }
+
+/**
+   Procura o caractere do Godigo definido e retorna o numero float imediato.
+   @retorna o valor encontrado apos do codigo, caso o codigo não sega encontrado o valor padrao é retronado.
+   @Entrada codigo - Caractere do codigo procurado
+   @ENtrada calorPadrao - Valor a ser retornado caso o codigo buscado não seja encontrado.
+ **/
+
+float analisaNumero(char codigo, float valorPadrao) {
+  char *ptr = bufferSerial; // Inicia a leitura do buffer
+  while ((long)ptr > 1 && (*ptr) && (long)ptr < (long)bufferSerial + indiceBuffer) { // Percorre até o fim do buffer
+    if (*ptr == codigo) { // Caso identifique algum codigo durante a leitura da mensagem,
+      return atof(ptr + 1); // converte os digitos a seguir em float e retorna-o
+    }
+    ptr = strchr(ptr, ' ') + 1; // Segue a leitura da mensagem, pulando para o proximo espaço
+  return valorPadrao;  // Caso não idenfique nada, retorna o valor padrao.
+}
+}
+
+/**
+Lê o buffer da porta serial e encontra os comandos e parametros definidos. Um codigo G, M, F por linha.
+*/
+void processaComando() {
+  int cmd = analisaNumero('G', -1);
+  switch (cmd) {
+    case  0:
+    case  1: { // Movimenta eixos
+        float posX = analisaNumero('X', 0);
+        float posY = analisaNumero('Y', 0);
+        float posZ = analisaNumero('Z', 0);
+        moveY(posY);
+        imprimePosicao();
+        moveZ(posZ);
+        break;
+      }
+    default:  break;
+  }
+
+  cmd = analisaNumero('M', -1);
+  switch (cmd) {
+    case 84: { // Desliga motores
+        paraEixoY();
+        paraEixoZ();
+        imprimePosicao();
+        break;
+      }
+    case 99:  {
+        //Imprime posição lógica
+        imprimePosicao();
+        break;
+      }
+    case 104:  {
+        //desliga extrusora
+        break;
+      }
+
+    default:  break;
+  }
+}
